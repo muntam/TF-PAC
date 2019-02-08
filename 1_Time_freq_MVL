@@ -1,0 +1,49 @@
+% 1_Time_freq_MVL
+% This script computes time-frequency based phase amplitude coupling using MVL method.
+% First a synthesized signal is produced with PAC generated between 10Hz
+% and 70Hz; TF-MVL algorithm is then applied to determine the coupling. A
+% comodulogram is plotted to show the coupling between high and low frequency.
+% 
+% Written by: Tamanna T. K. Munia, February 2019
+
+% These scripts have been optimised for the Windows operating systm  
+% MATLAB version 2018a.
+
+%% Input directory information
+
+  addpath('tfdnmfiles');
+
+%% Generate synthesized signal
+
+  syn_sig = generate_syn_signal(10, 70, 6, 1000, 10);
+
+%% Compute TF_MVL for each subject
+
+  x=syn_sig;
+  high=[34 100]; % set the required amplitude frequency range
+  low=[7 13]; % set the required phase frequency range
+  highfreq=high(1):2:high(2);
+  amp_length=length(highfreq);
+  lowfreq=low(1):1:low(2);
+  phase_length=length(lowfreq);
+  tf_MVL_all = zeros(amp_length,phase_length);
+  tfsurr_MVL= zeros(amp_length,phase_length);
+
+for i=1:phase_length
+  for j=1:amp_length
+      l_freq= lowfreq(i);
+      h_freq= highfreq(j);
+      [tf_MVL_all(j,i)]=tfMVL(x, h_freq, l_freq);
+  end
+end
+
+tf_MVL=abs(max(max(tf_MVL_all))); % Computed tf-MVL value
+misurr_tf=abs(mean2(tfsurr_MVL));
+[high_in, low_in]=find((tf_MVL_all==tf_MVL));
+
+high_pacf=highfreq(high_in); % Detected amplitude providing Frequency
+low_pacf=lowfreq(low_in); % Detected phase providing Frequency
+pacfreq=[low_pacf, high_pacf];
+plot_comodulogram(tf_MVL_all,high,low) %plot comodulogram
+ 
+ 
