@@ -4,10 +4,11 @@
 % and 70Hz; TF-MVL algorithm is then applied to determine the coupling. A
 % comodulogram is plotted to show the coupling between high and low frequency.
 % 
-% Written by: Tamanna T. K. Munia, February 2019
+% Written by: Tamanna T. K. Munia, January 2019
 
 % These scripts have been optimised for the Windows operating systm  
-% MATLAB version 2018a.
+% MATLAB version used 2018a.
+
 
 %% Input directory information
 
@@ -15,12 +16,12 @@
 
 %% Generate synthesized signal
 
-  syn_sig = generate_syn_signal(10, 70, 6, 1000, 10);
+  syn_sig = generate_syn_signal(10, 70, 6, 1000, 10, 0.5);
 
 %% Compute TF_MVL for each subject
 
   x=syn_sig;
-  high=[34 100]; % set the required amplitude frequency range
+  high=[50 100]; % set the required amplitude frequency range
   low=[7 13]; % set the required phase frequency range
   highfreq=high(1):2:high(2);
   amp_length=length(highfreq);
@@ -33,7 +34,7 @@ for i=1:phase_length
   for j=1:amp_length
       l_freq= lowfreq(i);
       h_freq= highfreq(j);
-      [tf_MVL_all(j,i)]=tfMVL(x, h_freq, l_freq);
+      [tf_MVL_all(j,i),tfsurr_MVL(j,i)]=tfMVL(x, h_freq, l_freq);
   end
 end
 
