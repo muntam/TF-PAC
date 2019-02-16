@@ -58,4 +58,4 @@ Hil_ShEn = ShannonEn(Hilbert_normalized,1,2);
 
 ShEn=[tf_ShEn, Hil_ShEn];
 disp('   tf_ShEn  Hilbert_ShEn');
-disp(ShEn); 
+disp(ShEn);
