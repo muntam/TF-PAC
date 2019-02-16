@@ -11,7 +11,9 @@ function syn_sig = generate_syn_signal(fp, fA, datalength, sampRate, SNR, PACstr
 %
 % Author: Soheila Samiee, 2013
 % Modified by Tamanna T. K. Munia, February 2019
-%
+% These scripts have been optimised for the Windows operating systm  
+% MATLAB version used 2018a.
+
 DutyCycle=0.5;
 couplingPhase=90;
 
