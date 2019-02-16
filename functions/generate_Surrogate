@@ -30,7 +30,7 @@ function [MVL_surr]=MVL_surrogate(Amp,Phase)
   MVL_surr=mean(MVL_surra);
     
   function [MVL] = calc_MVL(Phase,Amp)
-            z1=(exp(1i*Phase));
+            z1 = (exp(1i*Phase));
             z=Amp.*(z1);% Get complex valued signal
             MVL = abs((mean(z)));
   end
