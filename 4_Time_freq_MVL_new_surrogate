@@ -1,0 +1,114 @@
+% 4_Time_freq_MVL_new_surrogate
+% This script computes time-frequency based phase amplitude coupling using MVL method.
+% An updated surrogate data testing method is used here as described in "Time-Frequency 
+% Based Phase-Amplitude Coupling Measure For Neuronal Oscillations" paper.
+% First a synthesized signal is produced with PAC generated between 10Hz
+% and 70Hz; TF-MVL algorithm is then applied to determine the coupling. A
+% comodulogram is plotted to show the coupling between high and low frequency.
+% 
+% Written by: Tamanna T. K. Munia, January 2019
+
+% These scripts have been optimised for the Windows operating systm  
+% MATLAB version used 2018a.
+
+
+%% Input directory information
+  warning off;
+  addpath('tfdnmfiles');
+
+%% Generate synthesized signal
+syn_sig = generate_syn_signal(10, 70, 6, 1000, 3);
+
+%% Compute TF_MVL for each subject
+  Fs=1000;
+  x=syn_sig;
+  high=[40 100]; % set the required amplitude frequency range
+  low=[6 14]; % set the required phase frequency range
+  highfreq=high(1):2:high(2);
+  amp_length=length(highfreq);
+  lowfreq=low(1):1:low(2);
+  phase_length=length(lowfreq);
+  tf_MVL_all = zeros(amp_length,phase_length);
+  tfsurr_MVL= zeros(amp_length,phase_length);
+  thsur= zeros(amp_length,phase_length);
+
+for i=1:phase_length
+  for j=1:amp_length
+      l_freq= lowfreq(i);
+      h_freq= highfreq(j);
+      [tf_MVL_all(j,i),tfsurr_MVL(j,i)]=tfMVL_newsurrogate(x, h_freq, l_freq, Fs);
+  end
+end
+
+tf_MVL=abs(max(max(tf_MVL_all))); % Computed tf-MVL value
+Surr_tf=abs(mean2(tfsurr_MVL));
+[high_in, low_in]=find((tf_MVL_all==tf_MVL));
+
+high_pacf=highfreq(high_in); % Detected amplitude providing Frequency
+low_pacf=lowfreq(low_in); % Detected phase providing Frequency
+pacfreq=[low_pacf, high_pacf];
+plot_comodulogram(tf_MVL_all,high,low) %plot comodulogram
+ 
+ function [tf_canolty,MVL_surr]=tfMVL_newsurrogate(x,high_freq,low_freq, Fs)
+% This function computes the phase amplitude coupling using TF-MVL method.
+% Input:   x            : input signal 
+%          high_freq    : Amplitude Frequency range 
+%          low_freq     : Phase Frequency range 
+%          Fs           : Sampling frequency
+% Output:  tf_canolty   : Computed PAC using TF-MVL method
+%          MVL_surr     : mean surrogate values for TF-MVL method
+
+% Written by: Tamanna T. K. Munia, January 2019
+
+% These scripts have been optimised for the Windows operating systm  
+% MATLAB version used 2018a.
+
+
+%% Amplitude and Phase calculation
+[tfd]=rid_rihaczek4(x,Fs);
+W=tfd;
+W2=W(2:end,:);
+tfd_low=W2(low_freq:low_freq,:);
+angle_low=angle(tfd_low);
+Amp=(W2(high_freq:high_freq,:));
+Phase=((angle_low));
+tf_canolty_r=(calc_MVL(Phase,Amp));
+
+[MVL_surr]= MVL_surrogate_new(Amp,Phase, Fs);
+
+tf_canolty_r(tf_canolty_r<MVL_surr)=0; 
+tf_canolty=tf_canolty_r;
+
+function [MVL] = calc_MVL(Phase,Amp)
+         z1=(exp(1i*Phase));
+         z=Amp.*(z1);% Generate complex valued signal
+         MVL = abs((mean(z)));
+end
+
+end
+function [MVL_Surr]=MVL_surrogate_new(Amp,Phase, Fs)
+srate=Fs;
+phase=Phase;
+amplitude=Amp;
+numpoints=length(Amp);   %% number of sample points in raw signal 
+numsurrogate=100;   %% number of surrogate values to compare to actual value 
+minskip=srate;   %% time lag must be at least this big 
+maxskip=numpoints-srate; %% time lag must be smaller than this 
+skip=ceil(numpoints.*rand(numsurrogate*2,1)); 
+skip(find(skip>maxskip))=[];
+skip(find(skip<minskip))=[]; 
+mn=length(skip);
+skip=skip(1:mn,1); 
+surrogate_m=zeros(mn,1);
+for s=1:mn 
+    surrogate_amplitude=[amplitude(skip(s):end) amplitude(1:skip(s)-1)];    
+    surrogate_m(s)= calc_MVL(phase,surrogate_amplitude);        
+end 
+  MVL_Surr = mean(surrogate_m);
+  
+ function [MVL] = calc_MVL(Phase,Amp)
+         z1=(exp(1i*Phase));
+         z=Amp.*(z1);% Generate complex valued signal
+         MVL = abs((mean(z)));
+end
+end
