@@ -1,0 +1,26 @@
+function [MVL_Surr]=MVL_surrogate_new(Amp,Phase, Fs)
+srate=Fs;
+phase=Phase;
+amplitude=Amp;
+numpoints=length(Amp);   %% number of sample points in raw signal 
+numsurrogate=100;   %% number of surrogate values to compare to actual value 
+minskip=srate;   %% time lag must be at least this big 
+maxskip=numpoints-srate; %% time lag must be smaller than this 
+skip=ceil(numpoints.*rand(numsurrogate*2,1)); 
+skip(find(skip>maxskip))=[];
+skip(find(skip<minskip))=[]; 
+mn=length(skip);
+skip=skip(1:mn,1); 
+surrogate_m=zeros(mn,1);
+for s=1:mn 
+    surrogate_amplitude=[amplitude(skip(s):end) amplitude(1:skip(s)-1)];    
+    surrogate_m(s)= calc_MVL(phase,surrogate_amplitude);        
+end 
+  MVL_Surr = mean(surrogate_m);
+  
+ function [MVL] = calc_MVL(Phase,Amp)
+         z1=(exp(1i*Phase));
+         z=Amp.*(z1);% Generate complex valued signal
+         MVL = abs((mean(z)));
+end
+end
