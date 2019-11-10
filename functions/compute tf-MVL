@@ -1,4 +1,4 @@
-function [tf_canolty,MVL_surr]=tfMVL(x,high_freq,low_freq)
+function [tf_canolty,MVL_surr]=tfMVL(x,high_freq,low_freq, Fs)
 % This function computes the phase amplitude coupling using TF-MVL method.
 % Input:   x            : input signal 
 %          high_freq    : Amplitude Frequency range 
@@ -13,7 +13,6 @@ function [tf_canolty,MVL_surr]=tfMVL(x,high_freq,low_freq)
 
 
 %% Amplitude and Phase calculation
-Fs=1000;
 [tfd]=rid_rihaczek4(x,Fs);
 W=tfd;
 W2=W(2:end,:);
@@ -25,7 +24,8 @@ tf_canolty_r=(calc_MVL(Phase,Amp));
 
 [MVL_surr]= MVL_surrogate(Amp,Phase);
 
-tf_canolty=tf_canolty_r-MVL_surr;
+tf_canolty_r(tf_canolty_r<MVL_surr)=0;
+tf_canolty=tf_canolty_r;
 
 function [MVL] = calc_MVL(Phase,Amp)
          z1=(exp(1i*Phase));
