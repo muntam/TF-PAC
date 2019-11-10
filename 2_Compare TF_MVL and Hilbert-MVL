@@ -18,30 +18,30 @@
   addpath('preproc');
 
 %% Generate synthesized signal
-
-  syn_sig = generate_syn_signal(10, 70, 6, 1000, 10);
+ Fs = 1000;
+ syn_sig = generate_syn_signal(10, 70, 6, Fs, 10);
 
 %% Compute TF_MVL for each subject
+ x=syn_sig;
+ high=[30 100]; % set the required amplitude frequency range
+ low=[7 13]; % set the required phase frequency range
 
-  x=syn_sig;
-  high=[30 100]; % set the required amplitude frequency range
-  low=[7 13]; % set the required phase frequency range
- 
-  highfreq=high(1):2:high(2);
-  amp_length=length(highfreq);
-  lowfreq=low(1):1:low(2);
-  phase_length=length(lowfreq);
-  tf_MVL_all = zeros(amp_length,phase_length);
-  Hilbert_MVL_all = zeros(amp_length,phase_length);
-   
+ highfreq=high(1):2:high(2);
+ amp_length=length(highfreq);
+ lowfreq=low(1):1:low(2);
+ phase_length=length(lowfreq);
+ tf_MVL_all = zeros(amp_length,phase_length);
+ Hilbert_MVL_all = zeros(amp_length,phase_length);
 
+  
 for i=1:phase_length
   for j=1:amp_length
       l_freq= lowfreq(i);
       h_freq= highfreq(j);
-      [tf_MVL_all(j,i)]=tfMVL(x, h_freq, l_freq);
-      [Hilbert_MVL_all(j,i)]=hilMVL(x, h_freq, l_freq);
+      [tf_MVL_all(j,i)]=tfMVL(x, h_freq, l_freq, Fs);
+      [Hilbert_MVL_all(j,i)]=hilMVL(x, h_freq, l_freq, Fs);
   end
+
 end
 
 %% plot the comodulograms of tf-MVL and Hilbert-MVL methods
