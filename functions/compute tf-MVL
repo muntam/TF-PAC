@@ -3,6 +3,7 @@ function [tf_canolty,MVL_surr]=tfMVL(x,high_freq,low_freq, Fs)
 % Input:   x            : input signal 
 %          high_freq    : Amplitude Frequency range 
 %          low_freq     : Phase Frequency range 
+%          Fs           : Sampling Frequency  
 % Output:  tf_canolty   : Computed PAC using TF-MVL method
 %          MVL_surr     : mean surrogate values for TF-MVL method
 
