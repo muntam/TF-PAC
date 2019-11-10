@@ -1,36 +1,34 @@
-function [Hilbert_canolty]= hilMVL(x,high_freq,low_freq)
+function [Hilbert_canolty]= hilMVL(x,high_freq,low_freq, Fs)
+
 % This function computes the phase amplitude coupling using Hilbert-MVL method.
 % Input:   x                 : input signal 
 %          high_freq         : Amplitude Frequency range 
 %          low_freq          : Phase Frequency range 
+%          Fs                : Sampling frequency
 % Output:  Hilbert_canolty   : Computed PAC using Hilbert-MVL method
 %          MVL_surr          : mean surrogate values for Hilbert-MVL method
 
 % Written by: Tamanna T. K. Munia, January 2019
-
 % These scripts have been optimised for the Windows operating systm  
 % MATLAB version used 2018a.
 
 %% Bandpass Filtering
-Fs=1000;
 Af1 = round(high_freq -((high_freq*.4))); 
 Af2 = round(high_freq +((high_freq*.4)));
 pf1=low_freq+1;
 pf2=low_freq-1;
 fa1=[Af2 Af1];
 fp1=[pf1 pf2];
-
 [x_low] = ft_preproc_bandpassfilter(x,Fs,fp1,4);
 [x_high] = ft_preproc_bandpassfilter(x,Fs,fa1,4);
 
-
 %% amplitude and phase calculation
+Amp=abs(hilbert((x_high)));
+Phase=angle(hilbert((x_low)));
+Hilbert_canolty=(calc_MVL(Phase,Amp));
+[MVL_surr]= MVL_surrogate(Amp,Phase);
+Hilbert_canolty(Hilbert_canolty<MVL_surr)=0;
 
-  Amp=abs(hilbert((x_high)));
-  Phase=angle(hilbert((x_low)));
-  Hilbert_canolty=(calc_MVL(Phase,Amp));
-  
- 
 function [MVL] = calc_MVL(Phase,Amp)
          z1=(exp(1i*Phase));
          z=Amp.*(z1);% Get complex valued signal
@@ -38,3 +36,4 @@ function [MVL] = calc_MVL(Phase,Amp)
 end
 
 end
+
