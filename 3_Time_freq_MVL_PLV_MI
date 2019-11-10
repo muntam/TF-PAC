@@ -13,18 +13,18 @@
 
 
 %% Input directory information
-
+  warning off;
   addpath('tfdnmfiles');
 
 %% Generate synthesized signal
-
-  syn_sig = generate_syn_signal(5, 70, 6, 1000, 10);
+  Fs=1000; % sampling frequency
+  syn_sig = generate_syn_signal(5, 70, 3, Fs, 10);
 
 %% Compute TF_MVL for each subject
 
   x=syn_sig;
-  high=[50 90]; % set the required amplitude frequency range
-  low=[3 7]; % set the required phase frequency range
+  high=[40 100]; % set the required amplitude frequency range
+  low=[2 10]; % set the required phase frequency range
   highfreq=high(1):2:high(2);
   amp_length=length(highfreq);
   lowfreq=low(1):1:low(2);
@@ -36,7 +36,8 @@ for i=1:phase_length
   for j=1:amp_length
       l_freq= lowfreq(i);
       h_freq= highfreq(j);
-      [tf_MVL_all(j,i),tf_PLV_all(j,i),tf_MI_all(j,i)]=tfMVL_all(x, h_freq, l_freq);
+      [tf_MVL_all(j,i),tf_PLV_all(j,i), tf_MI_all(j,i)]=tfMVL_all(x, h_freq, l_freq, Fs);
+     
   end
 end
 
