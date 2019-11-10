@@ -9,6 +9,8 @@ function [Hilbert_canolty]= hilMVL(x,high_freq,low_freq, Fs)
 %          MVL_surr          : mean surrogate values for Hilbert-MVL method
 
 % Written by: Tamanna T. K. Munia, January 2019
+% Please cite: Munia, Tamanna TK, and Selin Aviyente. "time-frequency Based phase-Amplitude 
+% coupling Measure for neuronal oscillations." Scientific reports 9, no. 1 (2019): 1-15.
 % These scripts have been optimised for the Windows operating systm  
 % MATLAB version used 2018a.
 
