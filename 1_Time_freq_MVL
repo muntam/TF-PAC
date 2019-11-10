@@ -16,25 +16,26 @@
 
 %% Generate synthesized signal
 
-  syn_sig = generate_syn_signal(10, 70, 6, 1000, 10, 0.5);
+  syn_sig = generate_syn_signal(10, 70, 6, 1000, 3, 0.6);
 
 %% Compute TF_MVL for each subject
-
+  Fs=1000;
   x=syn_sig;
-  high=[50 100]; % set the required amplitude frequency range
-  low=[7 13]; % set the required phase frequency range
+  high=[40 100]; % set the required amplitude frequency range
+  low=[6 14]; % set the required phase frequency range
   highfreq=high(1):2:high(2);
   amp_length=length(highfreq);
   lowfreq=low(1):1:low(2);
   phase_length=length(lowfreq);
   tf_MVL_all = zeros(amp_length,phase_length);
   tfsurr_MVL= zeros(amp_length,phase_length);
+  thsur= zeros(amp_length,phase_length);
 
 for i=1:phase_length
   for j=1:amp_length
       l_freq= lowfreq(i);
       h_freq= highfreq(j);
-      [tf_MVL_all(j,i),tfsurr_MVL(j,i)]=tfMVL(x, h_freq, l_freq);
+      [tf_MVL_all(j,i),tfsurr_MVL(j,i)]=tfMVL(x, h_freq, l_freq, Fs);
   end
 end
 
@@ -46,5 +47,3 @@ high_pacf=highfreq(high_in); % Detected amplitude providing Frequency
 low_pacf=lowfreq(low_in); % Detected phase providing Frequency
 pacfreq=[low_pacf, high_pacf];
 plot_comodulogram(tf_MVL_all,high,low) %plot comodulogram
- 
- 
