@@ -21,7 +21,7 @@ W=tfd;
 W2=W(2:end,:);
 tfd_low=W2(low_freq:low_freq,:);
 angle_low=angle(tfd_low);
-Amp=(W2(high_freq:high_freq,:));
+Amp=abs(W2(high_freq:high_freq,:));
 Phase=((angle_low));
 tf_canolty_r=(calc_MVL(Phase,Amp));
 
