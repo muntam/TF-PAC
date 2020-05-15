@@ -30,7 +30,7 @@ else
     A = ambf; 
 end
 
-tfd = fft2(A);
+tfd = fft(A);
 
 function K=chwi_krn(D,L,A)
 %CHWI_KRN Choi-Williams kernel function.
