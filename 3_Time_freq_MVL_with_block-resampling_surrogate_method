@@ -1,0 +1,130 @@
+% 3_Time_freq_MVL_with_block-resampling_surrogate_method
+% This script computes time-frequency based phase amplitude coupling using MVL method.
+% Surrogate data testing using block-resampling method is used here.
+% First a synthesized signal is produced with PAC generated between 5Hz
+% and 70Hz; TF-MVL algorithm is then applied to determine the coupling. A
+% comodulogram is plotted to show the coupling between high and low frequency.
+% 
+% Written by: Tamanna T. K. Munia, January 2019
+% Please cite: Munia, Tamanna TK, and Selin Aviyente. "time-frequency Based phase-Amplitude 
+% coupling Measure for neuronal oscillations." Scientific reports 9, no. 1 (2019): 1-15.
+
+% These scripts have been optimised for the Windows operating systm  
+% MATLAB version used 2018a.
+
+
+%% Input directory information
+  warning off;
+  addpath('tfdnmfiles');
+
+%% Generate synthesized signal
+  Fs = 256; % sampling frequency
+  syn_sig = generate_syn_signal(5, 70, 4, Fs, 3);
+
+%% Compute TF_MVL for each subject
+  x = syn_sig;
+  high = [50 90]; % set the required amplitude frequency range
+  low = [2 8]; % set the required phase frequency range
+  highfreq = high(1):2:high(2);
+  amp_length = length(highfreq);
+  lowfreq = low(1):1:low(2);
+  phase_length = length(lowfreq);
+  tf_MVL_all = zeros(amp_length,phase_length);
+  tfsurr_MVL = zeros(amp_length,phase_length);
+  thsur = zeros(amp_length,phase_length);
+
+for i = 1:phase_length
+  for j = 1:amp_length
+      l_freq = lowfreq(i);
+      h_freq = highfreq(j);
+      [tf_MVL_all(j,i),tfsurr_MVL(j,i)] = tfMVL_surrogate(x, h_freq, l_freq, Fs);
+  end
+end
+
+tf_MVL = abs(max(max(tf_MVL_all))); % Computed tf-MVL value
+Surr_tf = abs(mean2(tfsurr_MVL));
+[high_in, low_in] = find((tf_MVL_all==tf_MVL));
+
+high_pacf = highfreq(high_in); % Detected amplitude providing Frequency
+low_pacf = lowfreq(low_in); % Detected phase providing Frequency
+pacfreq = [low_pacf, high_pacf];
+plot_comodulogram(tf_MVL_all,high,low) %plot comodulogram
+ 
+ function [tf_canolty,MVL_surr] = tfMVL_surrogate(x, high_freq, low_freq,Fs)
+% This function computes the phase amplitude coupling using TF-MVL method.
+% Input:   x            : input signal 
+%          high_freq    : Amplitude Frequency range 
+%          low_freq     : Phase Frequency range 
+%          Fs           : Sampling frequency
+% Output:  tf_canolty   : Computed PAC using TF-MVL method
+%          MVL_surr     : mean surrogate values using block-swapping method
+
+
+% Written by: Tamanna T. K. Munia, January 2019
+
+% These scripts have been optimised for the Windows operating systm  
+% MATLAB version used 2018a.
+
+
+%% Amplitude and Phase calculation
+[tfd] = rid_rihaczek4(x,Fs);
+W = tfd;
+W2 = W(2:end,:);
+Amp = abs(W2(high_freq:high_freq,:));
+tfd_low = W2(low_freq:low_freq,:);
+angle_low = angle(tfd_low);
+Phase = (angle_low);
+tf_canolty_r = (calc_MVL(Phase,Amp));
+
+[MVL_surr] = MVL_surrogate(Amp,Phase);
+
+tf_canolty_r(tf_canolty_r<MVL_surr) = 0; 
+tf_canolty = tf_canolty_r;
+
+function [MVL] = calc_MVL(Phase,Amp)
+         z1 =(exp(1i*Phase));
+         z = Amp.*(z1);% Generate complex valued signal
+         MVL = abs((mean(z)));
+end
+
+end
+
+function [MVL_surr] = MVL_surrogate(Amp,Phase)
+
+% This function generates the surrogate data from given phase and amplitude using block method.
+% Input:   Amp: detected amplitude envelope
+%          Phase: detected phase envelope
+% Output:  MVL_surr: mean surrogate values using block resampling approach
+
+% Written by: Tamanna T. K. Munia, January 2019
+
+% These scripts have been optimised for the Windows operating systm  
+% MATLAB version used 2018a.
+
+%% Surrogate data calculation
+
+ blocksize = 5; % enter requred block size
+ L_a = length(Amp) - mod(length(Amp),blocksize);  
+ Amp_block = reshape(Amp(1:L_a), blocksize, []); % divide the amp into blocks
+ L_p = length(Phase) - mod(length(Phase),blocksize);  
+ ph_block = reshape(Phase(1:L_p), blocksize, []); % divide the amp into blocks
+
+ for surr = 1:200   % calculated for 200 times
+     random_Phblock = randperm(size(ph_block,1),1); %randomly select phase block number
+     ph_surr = ph_block(random_Phblock,:); %extract phase signal for random block
+     random_Ampblock = randperm(size(Amp_block,1),1); %randomly select Amp block number
+     Amp_ran = Amp_block(random_Ampblock,:); %extract Amp signal for random block
+     Amp_sur = Amp_ran(randperm(length(Amp_ran)));
+     [M_sur] = calc_MVL(ph_surr, Amp_sur);
+     MVL_surra(surr) = M_sur;
+ end
+
+  MVL_surr = mean(MVL_surra);
+ 
+   function [MVL] = calc_MVL(Phase,Amp)
+             z1 = (exp(1i*Phase));
+             z=Amp.*(z1);% Get complex valued signal
+             MVL = abs((mean(z)));
+   end
+
+end
