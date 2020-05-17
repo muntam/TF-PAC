@@ -1,4 +1,4 @@
-% 4_Time_freq_MVL_new_surrogate
+% 3_Time_freq_MVL_new_surrogate
 % This script computes time-frequency based phase amplitude coupling using MVL method.
 % An updated surrogate data testing method is used here as described in "Time-Frequency 
 % Based Phase-Amplitude Coupling Measure For Neuronal Oscillations" paper.
