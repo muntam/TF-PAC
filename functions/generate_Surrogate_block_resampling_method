@@ -1,5 +1,5 @@
 function [MVL_surr]=MVL_surrogate(Amp,Phase)
-% This function generates the surrogate data from given phase and amplitude using block method.
+% This function generates the surrogate data from given phase and amplitude using block resampling method.
 % Input:   Amp: detected amplitude envelope
 %          Phase: detected phase envelope
 % Output:  MVL_surr: mean surrogate values
